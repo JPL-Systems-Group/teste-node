@@ -14,8 +14,20 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ]; then
+            npm ci
+          else
+            echo "Lockfile não encontrado; usando npm install como fallback"
+            npm install
+          fi
+
       - run: npm test
+
       - name: Enforce 85% coverage
         run: |
-          node -e "const fs=require('fs');const txt=fs.readFileSync(0,'utf8');const m=txt.match(/all files\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|/);if(!m)process.exit(1);if([+m[1],+m[2],+m[3]].some(v=>v<85)){process.exit(1)}" < <(npm test)
+          REPORT="$(npm test)"
+          echo "$REPORT"
+          node -e "const txt=process.argv[1];const m=txt.match(/all files\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|/);if(!m){console.error('coverage summary not found');process.exit(1)};if([+m[1],+m[2],+m[3]].some(v=>v<85)){console.error('coverage below 85%');process.exit(1)}" "$REPORT"
