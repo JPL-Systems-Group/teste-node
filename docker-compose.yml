@@ -1,0 +1,29 @@
+version: '3.9'
+services:
+  node-service:
+    build: .
+    depends_on:
+      - rabbitmq
+      - postgres
+    environment:
+      PORT: 3000
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      POSTGRES_URL: postgresql://postgres:postgres@postgres:5432/orders
+      JWT_SECRET: super-secret-change-me
+      RETRY_ATTEMPTS: 3
+      RETRY_DELAY_MS: 5000
+    ports:
+      - '3000:3000'
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orders
+    ports:
+      - '5432:5432'

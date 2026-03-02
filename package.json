@@ -1,11 +1,16 @@
 {
   "name": "order-processor",
-  "version": "1.0.0",
-  "description": "Microsserviço para processar eventos OrderCreated",
+  "version": "2.0.0",
+  "description": "Production-ready order processor microservice",
+  "type": "module",
   "main": "src/index.js",
-  "type": "commonjs",
   "scripts": {
     "start": "node src/index.js",
-    "test": "node --test --experimental-test-coverage"
+    "test": "node --test --experimental-test-coverage",
+    "test:ci": "node --test --experimental-test-coverage"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "pg": "^8.13.1"
   }
 }

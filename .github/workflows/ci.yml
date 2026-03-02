@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Enforce 85% coverage
+        run: |
+          node -e "const fs=require('fs');const txt=fs.readFileSync(0,'utf8');const m=txt.match(/all files\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|/);if(!m)process.exit(1);if([+m[1],+m[2],+m[3]].some(v=>v<85)){process.exit(1)}" < <(npm test)
