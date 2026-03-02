@@ -24,10 +24,9 @@ jobs:
             npm install
           fi
 
-      - run: npm test
+      - name: Run tests with coverage
+        run: npm test | tee test-output.log
 
       - name: Enforce 85% coverage
         run: |
-          REPORT="$(npm test)"
-          echo "$REPORT"
-          node -e "const txt=process.argv[1];const m=txt.match(/all files\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|/);if(!m){console.error('coverage summary not found');process.exit(1)};if([+m[1],+m[2],+m[3]].some(v=>v<85)){console.error('coverage below 85%');process.exit(1)}" "$REPORT"
+          node -e "const fs=require('fs');const txt=fs.readFileSync('test-output.log','utf8');const m=txt.match(/all files\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|\s+([0-9.]+)\s+\|/);if(!m){console.error('coverage summary not found');process.exit(1)};const [lines,branches,funcs]=[+m[1],+m[2],+m[3]];if([lines,branches,funcs].some(v=>v<85)){console.error(`coverage below 85% (lines=${lines}, branches=${branches}, funcs=${funcs})`);process.exit(1)};console.log(`coverage gate passed (lines=${lines}, branches=${branches}, funcs=${funcs})`)"
